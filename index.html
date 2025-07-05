@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Pesquisa de Escola</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #resposta { margin-top: 20px; border: 1px solid #ccc; padding: 15px; background: #f9f9f9; }
+    button { padding: 8px 20px; }
+    input[type="text"] { width: 320px; padding: 6px; }
+  </style>
+</head>
+<body>
+  <h2>Pesquisa de Escola</h2>
+  <form id="escolaForm">
+    <label for="escola">Digite o nome da escola, cidade e estado:</label><br><br>
+    <input type="text" id="escola" name="escola" placeholder="Ex: Colégio Impacto - Belém (PA)" required>
+    <button type="submit">Enviar</button>
+  </form>
+  <div id="resposta"></div>
+
+  <script>
+    document.getElementById("escolaForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      document.getElementById("resposta").innerHTML = "Pesquisando, aguarde...";
+      const inputTexto = document.getElementById("escola").value;
+
+      try {
+        const resposta = await fetch("https://arianesoares.app.n8n.cloud/webhook-test/pesquisar-escola", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ text: inputTexto })
+        });
+
+        if (resposta.ok) {
+          const dados = await resposta.json();
+          document.getElementById("resposta").innerHTML = dados.resultado
+            ? dados.resultado.replace(/\n/g, "<br>")
+            : "Resposta recebida, mas vazia.";
+        } else {
+          document.getElementById("resposta").innerText = "Erro ao enviar. Verifique o N8N.";
+        }
+      } catch (err) {
+        document.getElementById("resposta").innerText = "Erro de conexão com o servidor.";
+      }
+    });
+  </script>
+</body>
+</html>
